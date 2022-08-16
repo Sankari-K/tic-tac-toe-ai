@@ -91,21 +91,21 @@ const gameBoard = (() => {
     }
 
     const maximize = (board) => {
-        // returns a baord configuration and its utility
-        if (board.isBoardFull() || board.isWon('X') || board.isWon('O')) {
-            return null, calculateUtility(board)
+        // returns a board configuration and its utility
+        if (isBoardFull() || isWon('X') || isWon('O')) {
+            return null, calculateUtility(board, 'X')
         }
         let maxUtility = -Infinity;
         let moveMaxUtility = null;
 
-        let children = findChildren(board, 'X');
+        let children = findChildren(board, 'O');
         for (let possibility = 0; possibility < children.length; possibility++) {
             let move;
-            let minUtility;
-            move, minUtility = minimize(children[possibility]);
-            if (minUtility > maxUtility) {
+            let utility;
+            move, utility = minimize(children[possibility]);
+            if (utility > maxUtility) {
                 moveMaxUtility = children[possibility];
-                maxUtility = minUtility;
+                maxUtility = utility;
             }
         }
         return moveMaxUtility, maxUtility;
@@ -113,37 +113,94 @@ const gameBoard = (() => {
 
     const minimize = (board) => {
         // returns a board configuration and its utility
-        if (board.isBoardFull() || board.isWon('X') || board.isWon('O')) {
-            return null, calculateUtility(board)
+        if (isBoardFull() || isWon('X') || isWon('O')) {
+            return null, calculateUtility(board, 'O')
         }
         let minUtility = Infinity;
         let moveMinUtility = null;
 
-        let children = findChildren(board, 'O');
+        let children = findChildren(board, 'X');
         for (let possibility = 0; possibility < children.length; possibility++) {
             let move;
-            let maxUtility;
-            move, maxUtility = maximize(children[possibility]);
-            if (maxUtility < minUtility) {
+            let utility;
+            move, utility = maximize(children[possibility]);
+            if (utility < minUtility) {
                 moveMinUtility = children[possibility];
-                minUtility = maxUtility;
+                minUtility = utility;
             }
         }
         return moveMinUtility, minUtility;
     }
 
+    const calculateUtility = (board, currentMarker) => {
+        let utility = 0;
+        if (isWon(currentMarker)) {
+            utility = 10;
+        }
+        else if (isWon(currentMarker == 'X'? 'O': 'X')) {
+            utility = -10;
+        }
+        return utility;
+        // check if two places are occupied by player
+
+        for (let i = 0; i < 3; i++) {
+            if (board[i] == board[i + 3] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 3] == board[i + 6] && board[i + 3] != '') {
+                utility += board[i + 3] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i] == board[i + 6] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+        }
+        for (let i = 0; i < 7; i = i + 3) {
+            if (board[i] == board[i + 1] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 1] == board[i + 2] && board[i + 1] != '') {
+                utility += board[i + 1] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 2] == board[i] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+        }
+
+        if (board[0] == board[4] && board[0] != '') {
+            utility += board[0] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[4] == board[8] && board[4] != '') {
+            utility += board[4] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[8] == board[0] && board[0] != '') {
+            utility += board[0] == currentMarker ? 0.5 : -0.5;
+        }
+
+        if (board[2] == board[4] && board[2] != '') {
+            utility += board[2] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[4] == board[6] && board[4] != '') {
+            utility += board[4] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[6] == board[2] && board[2] != '') {
+            utility += board[2] == currentMarker ? 0.5 : -0.5;
+        }
+        console.log(utility);
+        return utility;        
+    }
+
     const findChildren = (board, marker) => {
         let children = [];
         let blankIndices = [];
-        for (let i = 0; i < board.length; i++) {
+        for (let i = 0; i < gameBoard.board.length; i++) {
             if (board[i] == '') {
                 blankIndices.push(i);
             }
         }
-
         for (let i = 0; i < blankIndices.length; i++) {
-            let newBoard = board;
+            let newBoard = [...board];
             newBoard[blankIndices[i]] = marker;
+            console.log(newBoard);
             children.push(newBoard);
         }
         return children;
@@ -155,7 +212,8 @@ const gameBoard = (() => {
         isBoardFull,
         isWon,
         showWon,
-        findOptimalPlace
+        findOptimalPlace, // del?
+        maximize
     };
 })();
 
@@ -186,7 +244,7 @@ const displayController = (() => {
 
 const gameFlow = (() => {
     let player1; 
-    let player2 = Player("robot", "O");
+    let player2 = Player("robot", "X");
 
     let currentPlayer; 
 
@@ -202,7 +260,9 @@ const gameFlow = (() => {
 
             currentPlayer = player2;
             setDescription("Robot is making a decision...");
-            player2.placeMarker(gameBoard.findOptimalPlace());
+            player2.placeMarker(gameBoard.maximize(gameBoard.board));
+            
+            // player2.placeMarker(gameBoard.findOptimalPlace());
 
             if (gameBoard.isBoardFull() || 
             gameBoard.isWon(currentPlayer.marker)) {
@@ -237,7 +297,7 @@ const gameFlow = (() => {
     document.querySelector("#play-button").addEventListener('click', (e) => {
         e.preventDefault();
         if (document.querySelector("#name").value !== '') {
-            player1 = Player(document.querySelector("#name").value, 'X');
+            player1 = Player(document.querySelector("#name").value, 'O');
             currentPlayer = player1;
 
             document.querySelector(".player-name").classList.add("hidden");
