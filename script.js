@@ -110,3 +110,9 @@ const displayController = (() => {
         displayWon
     }
 })();
+
+const gameFlow = (() => {
+    document.querySelector(".refresh").addEventListener('click', () => {
+        window.location.href = "./index.html";
+    })
+})

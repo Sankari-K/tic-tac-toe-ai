@@ -68,7 +68,7 @@ h1 {
     background-color: #b9929f;
 }
 
-.controls > div >  img {
+.controls > div >  img, .controls > div > a > img {
     height: 25px;
     width: 25px;
     padding: 10px;
