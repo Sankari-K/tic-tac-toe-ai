@@ -13,10 +13,31 @@ body {
 
 h1 {
     font-size: 65px;
+    margin: 15px 0px 15px 0;
+}
+
+input {
+    width: 270px;
+    height: 30px;
+    border-radius: 7px;
+    border-color: #E5E7EB;
+    border-style:ridge;
+    font-size: 35px;
+    border: 3px solid #b9929f;
+    margin-bottom: 15px;
+}
+
+input:focus {
+    outline: none !important;
+    border:3px solid #546a7b;
 }
 
 .white {
     color: #ffffff;
+}
+
+.hidden {
+    display:none;
 }
 
 .sub-container {
@@ -74,4 +95,15 @@ h1 {
     padding: 10px;
     filter: invert(41%) sepia(12%) saturate(847%) hue-rotate(164deg) brightness(93%) contrast(90%);
     border-radius: 5px;
+}
+
+button {
+    border-radius: 7px;
+    border: 3px solid #b9929f;
+    margin-left: 10px;
+    padding: 1px 10px;
+}
+
+button:hover {
+    border: 3px solid #546a7b;
 }

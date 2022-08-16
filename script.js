@@ -112,7 +112,29 @@ const displayController = (() => {
 })();
 
 const gameFlow = (() => {
+    let player1; 
     document.querySelector(".refresh").addEventListener('click', () => {
         window.location.href = "./index.html";
     })
+
+    function setDescription(text) {
+        let resultField = document.querySelector(".result");
+        resultField.innerText = text;
+    }
+
+    document.querySelector("#play-button").addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (document.querySelector("#name").value !== '') {
+            player1 = Player(document.querySelector("#name").value, 'X');
+            console.log(player1);
+            document.querySelector(".player-name").classList.add("hidden");
+            setDescription("Start playing!");
+        }
+        else {
+            setDescription("Enter a valid name!");
+        }
+    })
 })
+
+gameFlow();
