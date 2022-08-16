@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap');
+
+* {
+    font-family: 'Amatic SC', cursive;
+    text-align: center;
+    font-size: 40px;
+    color: #546a7b;
+} 
+
+body {
+    background: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url("./assets/bg.png");
+}
+
+h1 {
+    font-size: 65px;
+}
+
+.sub-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sub-container > div {
+    width: 150px;
+    height: 150px;
+    background-color: #e3c2c6;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.sub-container > div:hover {
+    background-color: #b9929f;
+}
+
+#game-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.result {
+    font-size: 60px;
+}
+
+.controls {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.controls > div {
+    margin: 0px 10px;
+    border-radius: 15px;
+    background-color: #e3c2c6;
+    height: 45px;
+    width: 45px;
+}
+
+.controls > div:hover {
+    background-color: #b9929f;
+}
+
+.controls > div >  img {
+    height: 25px;
+    width: 25px;
+    padding: 10px;
+    filter: invert(41%) sepia(12%) saturate(847%) hue-rotate(164deg) brightness(93%) contrast(90%);
+    border-radius: 5px;
+}
