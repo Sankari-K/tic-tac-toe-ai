@@ -77,12 +77,25 @@ const gameBoard = (() => {
         }
     }
 
+    const findOptimalPlace = () => {
+        let positions = [];
+        for (let i = 0; i < board.length; i++)
+        {
+            if (board[i] === '') {
+                positions.push(i);
+            }
+        }
+        return positions[Math.floor(Math.random() * positions.length)];;
+
+    }
+
     return {
         board,
         placeMarker,
         isBoardFull,
         isWon,
-        showWon
+        showWon,
+        findOptimalPlace
     };
 })();
 
@@ -113,6 +126,72 @@ const displayController = (() => {
 
 const gameFlow = (() => {
     let player1; 
+    let player2 = Player("robot", "O");
+
+    let currentPlayer; 
+
+    function selectUserField(event) {
+        if (currentPlayer.marker == player1.marker && event.composedPath()[0].innerText == '') {
+            player1.placeMarker(event.composedPath()[0].id - 1);
+
+            if (gameBoard.isBoardFull() || 
+            gameBoard.isWon(currentPlayer.marker)) {
+                gameOver();
+                return;
+            }
+
+            currentPlayer = player2;
+            setDescription("Robot is making a decision...");
+            player2.placeMarker(gameBoard.findOptimalPlace());
+
+            if (gameBoard.isBoardFull() || 
+            gameBoard.isWon(currentPlayer.marker)) {
+                gameOver();
+                return;
+            }
+            
+            currentPlayer = player1;
+            setDescription(`${player1.name}'s turn!`);
+            
+        }
+    }
+    
+
+    function gameOver() {
+        if (gameBoard.isWon(currentPlayer.marker)) {
+            gameBoard.showWon(currentPlayer.marker);
+            setDescription(`${currentPlayer.name} wins!`);
+        }
+        else {
+            setDescription("It's a tie!");
+        }
+        removeFieldEventListener();
+    }
+
+    function removeFieldEventListener() {
+        boardElement.forEach((field) => {
+            field.removeEventListener('click', selectUserField)  
+        })
+    }
+
+    document.querySelector("#play-button").addEventListener('click', (e) => {
+        e.preventDefault();
+        if (document.querySelector("#name").value !== '') {
+            player1 = Player(document.querySelector("#name").value, 'X');
+            currentPlayer = player1;
+
+            document.querySelector(".player-name").classList.add("hidden");
+            setDescription("Start playing!");
+
+            boardElement.forEach((field) => {
+                field.addEventListener('click', selectUserField)  
+            })
+        }
+        else {
+            setDescription("Enter a valid name!");
+        }
+    })
+
     document.querySelector(".refresh").addEventListener('click', () => {
         window.location.href = "./index.html";
     })
@@ -121,20 +200,6 @@ const gameFlow = (() => {
         let resultField = document.querySelector(".result");
         resultField.innerText = text;
     }
-
-    document.querySelector("#play-button").addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        if (document.querySelector("#name").value !== '') {
-            player1 = Player(document.querySelector("#name").value, 'X');
-            console.log(player1);
-            document.querySelector(".player-name").classList.add("hidden");
-            setDescription("Start playing!");
-        }
-        else {
-            setDescription("Enter a valid name!");
-        }
-    })
 })
 
 gameFlow();
