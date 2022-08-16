@@ -77,6 +77,7 @@ const gameBoard = (() => {
         }
     }
 
+    // TODO: change or delete
     const findOptimalPlace = () => {
         let positions = [];
         for (let i = 0; i < board.length; i++)
@@ -87,6 +88,65 @@ const gameBoard = (() => {
         }
         return positions[Math.floor(Math.random() * positions.length)];;
 
+    }
+
+    const maximize = (board) => {
+        // returns a baord configuration and its utility
+        if (board.isBoardFull() || board.isWon('X') || board.isWon('O')) {
+            return null, calculateUtility(board)
+        }
+        let maxUtility = -Infinity;
+        let moveMaxUtility = null;
+
+        let children = findChildren(board, 'X');
+        for (let possibility = 0; possibility < children.length; possibility++) {
+            let move;
+            let minUtility;
+            move, minUtility = minimize(children[possibility]);
+            if (minUtility > maxUtility) {
+                moveMaxUtility = children[possibility];
+                maxUtility = minUtility;
+            }
+        }
+        return moveMaxUtility, maxUtility;
+    }
+
+    const minimize = (board) => {
+        // returns a board configuration and its utility
+        if (board.isBoardFull() || board.isWon('X') || board.isWon('O')) {
+            return null, calculateUtility(board)
+        }
+        let minUtility = Infinity;
+        let moveMinUtility = null;
+
+        let children = findChildren(board, 'O');
+        for (let possibility = 0; possibility < children.length; possibility++) {
+            let move;
+            let maxUtility;
+            move, maxUtility = maximize(children[possibility]);
+            if (maxUtility < minUtility) {
+                moveMinUtility = children[possibility];
+                minUtility = maxUtility;
+            }
+        }
+        return moveMinUtility, minUtility;
+    }
+
+    const findChildren = (board, marker) => {
+        let children = [];
+        let blankIndices = [];
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] == '') {
+                blankIndices.push(i);
+            }
+        }
+
+        for (let i = 0; i < blankIndices.length; i++) {
+            let newBoard = board;
+            newBoard[blankIndices[i]] = marker;
+            children.push(newBoard);
+        }
+        return children;
     }
 
     return {
