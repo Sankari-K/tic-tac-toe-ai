@@ -18,13 +18,14 @@ const gameBoard = (() => {
             ]
 
     const placeMarker = (position, marker) => {
-        if (board[position] === '') {
-            board[position] = marker;
+        if (gameBoard.board[position] === '') {
+            gameBoard.board[position] = marker;
         }
+        // console.log(board, gameBoard.board);
         displayController.displayBoard(gameBoard.board);
     }
 
-    const isBoardFull = () => {
+    const isBoardFull = (board) => {
         for (let i = 0; i < board.length; i++)
         {
             if (board[i] === '') {
@@ -58,21 +59,21 @@ const gameBoard = (() => {
 
     const showWon = (marker) => {
         for (let i = 0; i < 3; i++) {
-            if (board[i] == marker && board[i + 3] == marker && 
-                board[i + 6] == marker) {
+            if (gameBoard.board[i] == marker && gameBoard.board[i + 3] == marker && 
+                gameBoard.board[i + 6] == marker) {
                     displayController.displayWon([i, i + 3, i + 6]);
                 }
         }
         for (let i = 0; i < 7; i = i + 3) {
-            if (board[i] == marker && board[i + 1] == marker && 
-                board[i + 2] == marker) {
+            if (gameBoard.board[i] == marker && gameBoard.board[i + 1] == marker && 
+                gameBoard.board[i + 2] == marker) {
                     displayController.displayWon([i, i + 1, i + 2]);
                 }
         }
-        if (board[0] == marker && board[4] == marker && board[8] == marker) {
+        if (gameBoard.board[0] == marker && gameBoard.board[4] == marker && gameBoard.board[8] == marker) {
             displayController.displayWon([0, 4, 8]);
         }
-        if (board[2] == marker && board[4] == marker && board[6] == marker) {
+        if (gameBoard.board[2] == marker && gameBoard.board[4] == marker && gameBoard.board[6] == marker) {
             displayController.displayWon([2, 4, 6]);
         }
     }
@@ -92,8 +93,8 @@ const gameBoard = (() => {
 
     const maximize = (board) => {
         // returns a board configuration and its utility
-        if (isBoardFull() || isWon(board, 'X') || isWon(board, 'O')) {
-            return null, calculateUtility(board, 'O')
+        if (isBoardFull(board) || isWon(board, 'X') || isWon(board, 'O')) {
+            return [null, calculateUtility(board, 'O')];
         }
         let maxUtility = -10000;
         let moveMaxUtility = null;
@@ -101,20 +102,19 @@ const gameBoard = (() => {
         let children = findChildren(board, 'X');
         for (let possibility = 0; possibility < children.length; possibility++) {
             let move;
-            let utility;
-            move, utility = minimize(children[possibility]);
-            if (utility > maxUtility) {
+            move = minimize(children[possibility]);
+            if (move[1] > maxUtility) {
                 moveMaxUtility = children[possibility];
-                maxUtility = utility;
+                maxUtility = move[1];
             }
         }
-        return moveMaxUtility, maxUtility;
+        return [moveMaxUtility, maxUtility];
     }
 
     const minimize = (board) => {
         // returns a board configuration and its utility
-        if (isBoardFull() || isWon(board, 'X') || isWon(board, 'O')) {
-            return null, calculateUtility(board, 'X')
+        if (isBoardFull(board) || isWon(board, 'X') || isWon(board, 'O')) {
+            return [null, calculateUtility(board, 'X')];
         }
         let minUtility = 10000;
         let moveMinUtility = null;
@@ -122,70 +122,68 @@ const gameBoard = (() => {
         let children = findChildren(board, 'O');
         for (let possibility = 0; possibility < children.length; possibility++) {
             let move;
-            let utility;
-            move, utility = maximize(children[possibility]);
-            if (utility < minUtility) {
+            move = maximize(children[possibility]);
+            if (move[1] < minUtility) {
                 moveMinUtility = children[possibility];
-                minUtility = utility;
+                minUtility = move[1];
             }
         }
-        return moveMinUtility, minUtility;
+        return [moveMinUtility, minUtility];
     }
 
     const calculateUtility = (board, currentMarker) => {
         let utility = 0;
         if (isWon(board, currentMarker)) {
-            utility = 10;
+            return 10;
         }
         else if (board, isWon(currentMarker == 'X'? 'O': 'X')) {
-            utility = -10;
+            return -10;
         }
-        return utility;
-        // check if two places are occupied by player
+        //check if two places are occupied by player
 
-        // for (let i = 0; i < 3; i++) {
-        //     if (board[i] == board[i + 3] && board[i] != '') {
-        //         utility += board[i] == currentMarker ? 0.5 : -0.5;
-        //     }
-        //     if (board[i + 3] == board[i + 6] && board[i + 3] != '') {
-        //         utility += board[i + 3] == currentMarker ? 0.5 : -0.5;
-        //     }
-        //     if (board[i] == board[i + 6] && board[i] != '') {
-        //         utility += board[i] == currentMarker ? 0.5 : -0.5;
-        //     }
-        // }
-        // for (let i = 0; i < 7; i = i + 3) {
-        //     if (board[i] == board[i + 1] && board[i] != '') {
-        //         utility += board[i] == currentMarker ? 0.5 : -0.5;
-        //     }
-        //     if (board[i + 1] == board[i + 2] && board[i + 1] != '') {
-        //         utility += board[i + 1] == currentMarker ? 0.5 : -0.5;
-        //     }
-        //     if (board[i + 2] == board[i] && board[i] != '') {
-        //         utility += board[i] == currentMarker ? 0.5 : -0.5;
-        //     }
-        // }
+        for (let i = 0; i < 3; i++) {
+            if (board[i] == board[i + 3] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 3] == board[i + 6] && board[i + 3] != '') {
+                utility += board[i + 3] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i] == board[i + 6] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+        }
+        for (let i = 0; i < 7; i = i + 3) {
+            if (board[i] == board[i + 1] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 1] == board[i + 2] && board[i + 1] != '') {
+                utility += board[i + 1] == currentMarker ? 0.5 : -0.5;
+            }
+            if (board[i + 2] == board[i] && board[i] != '') {
+                utility += board[i] == currentMarker ? 0.5 : -0.5;
+            }
+        }
 
-        // if (board[0] == board[4] && board[0] != '') {
-        //     utility += board[0] == currentMarker ? 0.5 : -0.5;
-        // }
-        // if (board[4] == board[8] && board[4] != '') {
-        //     utility += board[4] == currentMarker ? 0.5 : -0.5;
-        // }
-        // if (board[8] == board[0] && board[0] != '') {
-        //     utility += board[0] == currentMarker ? 0.5 : -0.5;
-        // }
+        if (board[0] == board[4] && board[0] != '') {
+            utility += board[0] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[4] == board[8] && board[4] != '') {
+            utility += board[4] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[8] == board[0] && board[0] != '') {
+            utility += board[0] == currentMarker ? 0.5 : -0.5;
+        }
 
-        // if (board[2] == board[4] && board[2] != '') {
-        //     utility += board[2] == currentMarker ? 0.5 : -0.5;
-        // }
-        // if (board[4] == board[6] && board[4] != '') {
-        //     utility += board[4] == currentMarker ? 0.5 : -0.5;
-        // }
-        // if (board[6] == board[2] && board[2] != '') {
-        //     utility += board[2] == currentMarker ? 0.5 : -0.5;
-        // }
-        // return utility;        
+        if (board[2] == board[4] && board[2] != '') {
+            utility += board[2] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[4] == board[6] && board[4] != '') {
+            utility += board[4] == currentMarker ? 0.5 : -0.5;
+        }
+        if (board[6] == board[2] && board[2] != '') {
+            utility += board[2] == currentMarker ? 0.5 : -0.5;
+        }
+        return utility;        
     }
 
     const findChildren = (board, marker) => {
@@ -250,7 +248,7 @@ const gameFlow = (() => {
         if (currentPlayer.marker == player1.marker && event.composedPath()[0].innerText == '') {
             player1.placeMarker(event.composedPath()[0].id - 1);
 
-            if (gameBoard.isBoardFull() || 
+            if (gameBoard.isBoardFull(gameBoard.board) || 
             gameBoard.isWon(gameBoard.board, currentPlayer.marker)) {
                 gameOver();
                 return;
@@ -258,14 +256,15 @@ const gameFlow = (() => {
 
             currentPlayer = player2;
             setDescription("Robot is making a decision...");
-            let move, utility = gameBoard.maximize(gameBoard.board);
-            console.log(move, utility);
-            // displayController.displayBoard(move);
-            // player2.placeMarker(gameBoard.maximize(gameBoard.board));
             
-            player2.placeMarker(gameBoard.findOptimalPlace());
+            let move = gameBoard.maximize(gameBoard.board);
+            // displayController.displayBoard(move);
+            gameBoard.board = move[0];
+            displayController.displayBoard(move[0]);
+            
+            // player2.placeMarker(gameBoard.findOptimalPlace());
 
-            if (gameBoard.isBoardFull() || 
+            if (gameBoard.isBoardFull(gameBoard.board) || 
             gameBoard.isWon(gameBoard.board, currentPlayer.marker)) {
                 gameOver();
                 return;
