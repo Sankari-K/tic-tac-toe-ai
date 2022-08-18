@@ -91,98 +91,100 @@ const gameBoard = (() => {
 
     }
 
-    const maximize = (board) => {
-        // returns a board configuration and its utility
-        if (isBoardFull(board) || isWon(board, 'X') || isWon(board, 'O')) {
-            return [null, calculateUtility(board, 'O')];
+    const minimax = (board, isRobot) => {
+        let marker = isRobot ? 'X': 'O';
+        console.log(marker);
+        if (isBoardFull(board)) {
+            return [calculateUtility(board, marker), board];
         }
-        let maxUtility = -10000;
-        let moveMaxUtility = null;
 
-        let children = findChildren(board, 'X');
-        for (let possibility = 0; possibility < children.length; possibility++) {
-            let move;
-            move = minimize(children[possibility]);
-            if (move[1] > maxUtility) {
-                moveMaxUtility = children[possibility];
-                maxUtility = move[1];
+        if (isRobot) {
+            let bestVal = -Infinity;
+            let moves = findChildren(board, 'O');
+            let bestBoard;
+            for (let i = 0; i < moves.length; i++) {
+                let value = minimax(moves[i], false);
+                bestVal = bestVal > value[0] ? bestVal : value[0];
+                if (bestVal == value[0]) {
+                    bestBoard = moves[i]
+                }
             }
+            return [bestVal, bestBoard];
         }
-        return [moveMaxUtility, maxUtility];
+        else {
+            let bestVal = Infinity;
+            let moves = findChildren(board, 'X');
+            let bestBoard;
+            for (let i = 0; i < moves.length; i++) {
+                let value = minimax(moves[i], true);
+                bestVal = bestVal < value[0] ? bestVal : value[0];
+                if (bestVal == value[0]) {
+                    bestBoard = moves[i];
+                }
+            }
+            return [bestVal, bestBoard];
+        }
     }
 
-    const minimize = (board) => {
-        // returns a board configuration and its utility
-        if (isBoardFull(board) || isWon(board, 'X') || isWon(board, 'O')) {
-            return [null, calculateUtility(board, 'X')];
-        }
-        let minUtility = 10000;
-        let moveMinUtility = null;
-
-        let children = findChildren(board, 'O');
-        for (let possibility = 0; possibility < children.length; possibility++) {
-            let move;
-            move = maximize(children[possibility]);
-            if (move[1] < minUtility) {
-                moveMinUtility = children[possibility];
-                minUtility = move[1];
-            }
-        }
-        return [moveMinUtility, minUtility];
-    }
 
     const calculateUtility = (board, currentMarker) => {
         let utility = 0;
         if (isWon(board, currentMarker)) {
-            return 10;
+            utility = 10;
+            return utility;
         }
-        else if (board, isWon(currentMarker == 'X'? 'O': 'X')) {
-            return -10;
+        else if (isWon(board, currentMarker == 'X'? 'O': 'X')) {
+            utility = -10;
+            return utility
         }
+        return utility;
         //check if two places are occupied by player
 
+        let offensive = 1; // 0.5
+        let defensive = -0.5;//-0.75
         for (let i = 0; i < 3; i++) {
             if (board[i] == board[i + 3] && board[i] != '') {
-                utility += board[i] == currentMarker ? 0.5 : -0.5;
+                utility += board[i] == currentMarker ? offensive : defensive;
             }
             if (board[i + 3] == board[i + 6] && board[i + 3] != '') {
-                utility += board[i + 3] == currentMarker ? 0.5 : -0.5;
+                utility += board[i + 3] == currentMarker ? offensive : defensive;
             }
             if (board[i] == board[i + 6] && board[i] != '') {
-                utility += board[i] == currentMarker ? 0.5 : -0.5;
+                utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
         for (let i = 0; i < 7; i = i + 3) {
             if (board[i] == board[i + 1] && board[i] != '') {
-                utility += board[i] == currentMarker ? 0.5 : -0.5;
+                utility += board[i] == currentMarker ? offensive : defensive;
             }
             if (board[i + 1] == board[i + 2] && board[i + 1] != '') {
-                utility += board[i + 1] == currentMarker ? 0.5 : -0.5;
+                utility += board[i + 1] == currentMarker ? offensive : defensive;
             }
             if (board[i + 2] == board[i] && board[i] != '') {
-                utility += board[i] == currentMarker ? 0.5 : -0.5;
+                utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
 
         if (board[0] == board[4] && board[0] != '') {
-            utility += board[0] == currentMarker ? 0.5 : -0.5;
+            utility += board[0] == currentMarker ? offensive : defensive;
         }
         if (board[4] == board[8] && board[4] != '') {
-            utility += board[4] == currentMarker ? 0.5 : -0.5;
+            utility += board[4] == currentMarker ? offensive : defensive;
         }
         if (board[8] == board[0] && board[0] != '') {
-            utility += board[0] == currentMarker ? 0.5 : -0.5;
+            utility += board[0] == currentMarker ? offensive : defensive;
         }
 
         if (board[2] == board[4] && board[2] != '') {
-            utility += board[2] == currentMarker ? 0.5 : -0.5;
+            utility += board[2] == currentMarker ? offensive : defensive;
         }
         if (board[4] == board[6] && board[4] != '') {
-            utility += board[4] == currentMarker ? 0.5 : -0.5;
+            utility += board[4] == currentMarker ? offensive : defensive;
         }
         if (board[6] == board[2] && board[2] != '') {
-            utility += board[2] == currentMarker ? 0.5 : -0.5;
+            utility += board[2] == currentMarker ? offensive : defensive;
         }
+        console.log(utility);
         return utility;        
     }
 
@@ -208,8 +210,8 @@ const gameBoard = (() => {
         isBoardFull,
         isWon,
         showWon,
-        findOptimalPlace, // del?
-        maximize
+        findOptimalPlace, 
+        minimax
     };
 })();
 
@@ -254,13 +256,16 @@ const gameFlow = (() => {
                 return;
             }
 
-            currentPlayer = player2;
             setDescription("Robot is making a decision...");
+            currentPlayer = player2;
             
-            let move = gameBoard.maximize(gameBoard.board);
+            
+            let move = gameBoard.minimax(gameBoard.board);
+            
+            // let move = gameBoard.maximize(gameBoard.board);
             // displayController.displayBoard(move);
-            gameBoard.board = move[0];
-            displayController.displayBoard(move[0]);
+            gameBoard.board = move[1];
+            displayController.displayBoard(move[1]);
             
             // player2.placeMarker(gameBoard.findOptimalPlace());
 
