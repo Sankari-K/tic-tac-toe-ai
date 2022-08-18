@@ -97,14 +97,14 @@ const gameBoard = (() => {
         if (isBoardFull(board)) {
             return [calculateUtility(board, marker), board];
         }
-
+ 
         if (isRobot) {
             let bestVal = -Infinity;
             let moves = findChildren(board, 'O');
             let bestBoard;
             for (let i = 0; i < moves.length; i++) {
                 let value = minimax(moves[i], false);
-                bestVal = bestVal > value[0] ? bestVal : value[0];
+                bestVal = bestVal >= value[0] ? bestVal : value[0];
                 if (bestVal == value[0]) {
                     bestBoard = moves[i]
                 }
@@ -117,7 +117,7 @@ const gameBoard = (() => {
             let bestBoard;
             for (let i = 0; i < moves.length; i++) {
                 let value = minimax(moves[i], true);
-                bestVal = bestVal < value[0] ? bestVal : value[0];
+                bestVal = bestVal <= value[0] ? bestVal : value[0];
                 if (bestVal == value[0]) {
                     bestBoard = moves[i];
                 }
@@ -129,62 +129,65 @@ const gameBoard = (() => {
 
     const calculateUtility = (board, currentMarker) => {
         let utility = 0;
+        if (board[4] == currentMarker) {
+            utility += 5;
+        }
         if (isWon(board, currentMarker)) {
-            utility = 10;
+            utility += 10;
             return utility;
         }
         else if (isWon(board, currentMarker == 'X'? 'O': 'X')) {
-            utility = -10;
+            utility += -10;
             return utility
         }
-        return utility;
+        
         //check if two places are occupied by player
 
-        let offensive = 1; // 0.5
-        let defensive = -0.5;//-0.75
+        let offensive = 0.5; // 0.5
+        let defensive = -0.75; //-0.75
         for (let i = 0; i < 3; i++) {
-            if (board[i] == board[i + 3] && board[i] != '') {
+            if (board[i] == board[i + 3]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 3] == board[i + 6] && board[i + 3] != '') {
+            if (board[i + 3] == board[i + 6]) {
                 utility += board[i + 3] == currentMarker ? offensive : defensive;
             }
-            if (board[i] == board[i + 6] && board[i] != '') {
+            if (board[i] == board[i + 6]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
         for (let i = 0; i < 7; i = i + 3) {
-            if (board[i] == board[i + 1] && board[i] != '') {
+            if (board[i] == board[i + 1]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 1] == board[i + 2] && board[i + 1] != '') {
+            if (board[i + 1] == board[i + 2]) {
                 utility += board[i + 1] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 2] == board[i] && board[i] != '') {
+            if (board[i + 2] == board[i]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
 
-        if (board[0] == board[4] && board[0] != '') {
+        if (board[0] == board[4]) {
             utility += board[0] == currentMarker ? offensive : defensive;
         }
-        if (board[4] == board[8] && board[4] != '') {
+        if (board[4] == board[8]) {
             utility += board[4] == currentMarker ? offensive : defensive;
         }
-        if (board[8] == board[0] && board[0] != '') {
+        if (board[8] == board[0]) {
             utility += board[0] == currentMarker ? offensive : defensive;
         }
 
-        if (board[2] == board[4] && board[2] != '') {
+        if (board[2] == board[4]) {
             utility += board[2] == currentMarker ? offensive : defensive;
         }
-        if (board[4] == board[6] && board[4] != '') {
+        if (board[4] == board[6]) {
             utility += board[4] == currentMarker ? offensive : defensive;
         }
-        if (board[6] == board[2] && board[2] != '') {
+        if (board[6] == board[2]) {
             utility += board[2] == currentMarker ? offensive : defensive;
         }
-        console.log(utility);
+        console.log("utility", utility);
         return utility;        
     }
 
