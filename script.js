@@ -138,53 +138,53 @@ const gameBoard = (() => {
         }
         else if (isWon(board, currentMarker == 'X'? 'O': 'X')) {
             utility += -10;
-            return utility
+            return utility;
         }
-        
+        // return utility;
         //check if two places are occupied by player
 
-        let offensive = 0.5; // 0.5
-        let defensive = -0.75; //-0.75
+        let offensive = -3; // -3
+        let defensive = 3; //3
         for (let i = 0; i < 3; i++) {
-            if (board[i] == board[i + 3]) {
+            if (board[i] == board[i + 3] && board[i] != board[i + 6]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 3] == board[i + 6]) {
+            if (board[i + 3] == board[i + 6] && board[i + 6] != board[i]) {
                 utility += board[i + 3] == currentMarker ? offensive : defensive;
             }
-            if (board[i] == board[i + 6]) {
+            if (board[i] == board[i + 6] && board[i] != board[i + 3]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
         for (let i = 0; i < 7; i = i + 3) {
-            if (board[i] == board[i + 1]) {
+            if (board[i] == board[i + 1] && board[i] != board[i + 2]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 1] == board[i + 2]) {
+            if (board[i + 1] == board[i + 2] && board[i + 1] != board[i]) {
                 utility += board[i + 1] == currentMarker ? offensive : defensive;
             }
-            if (board[i + 2] == board[i]) {
+            if (board[i + 2] == board[i]&& board[i] != board[i + 1]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
 
-        if (board[0] == board[4]) {
+        if (board[0] == board[4] && board[0] != board[8]) {
             utility += board[0] == currentMarker ? offensive : defensive;
         }
-        if (board[4] == board[8]) {
+        if (board[4] == board[8] && board[4] != board[0]) {
             utility += board[4] == currentMarker ? offensive : defensive;
         }
-        if (board[8] == board[0]) {
+        if (board[8] == board[0] && board[8] != board[4]) {
             utility += board[0] == currentMarker ? offensive : defensive;
         }
 
-        if (board[2] == board[4]) {
+        if (board[2] == board[4] && board[2] != board[6]) {
             utility += board[2] == currentMarker ? offensive : defensive;
         }
-        if (board[4] == board[6]) {
+        if (board[4] == board[6]&& board[4] != board[2]) {
             utility += board[4] == currentMarker ? offensive : defensive;
         }
-        if (board[6] == board[2]) {
+        if (board[6] == board[2] && board[6] != board[4]) {
             utility += board[2] == currentMarker ? offensive : defensive;
         }
         console.log("utility", utility);
