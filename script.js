@@ -260,8 +260,7 @@ const gameFlow = (() => {
 
     let currentPlayer; 
 
-    function selectUserField(event) {
-
+    async function selectUserField(event) {
         if (currentPlayer.marker == player1.marker && event.composedPath()[0].innerText == '') {
             player1.placeMarker(event.composedPath()[0].id - 1);
 
@@ -270,11 +269,12 @@ const gameFlow = (() => {
                 gameOver();
                 return;
             }
-
             setDescription("Robot is making a decision...");
             currentPlayer = player2;
             
-            
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            await sleep(2000);
+
             let move = gameBoard.minimax(gameBoard.board);
             
             gameBoard.board = move[1];
@@ -334,8 +334,20 @@ const gameFlow = (() => {
     })
 
     document.querySelector(".refresh").addEventListener('click', () => {
-        // TODO
-        window.location.href = "./index.html";
+        gameBoard.board = [
+                     '', '', '',
+                     '', '', '', 
+                     '', '', '',
+                    ];
+        displayController.displayBoard(gameBoard.board);
+        boardElement.forEach((field) => {
+            field.addEventListener('click', selectUserField)  
+        })
+        setDescription("Start playing!");
+        currentPlayer = player1;
+        boardElement.forEach((field) => {
+                field.classList.remove("white");
+            })
     })
 
     function setDescription(text) {
