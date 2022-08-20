@@ -21,7 +21,6 @@ const gameBoard = (() => {
         if (gameBoard.board[position] === '') {
             gameBoard.board[position] = marker;
         }
-        // console.log(board, gameBoard.board);
         displayController.displayBoard(gameBoard.board);
     }
 
@@ -93,8 +92,7 @@ const gameBoard = (() => {
 
     const minimax = (board, isRobot) => {
         let marker = isRobot ? 'X': 'O';
-        console.log(marker);
-        if (isBoardFull(board)) {
+        if (isBoardFull(board) || isWon(board, 'O') || isWon(board, 'X')) {
             return [calculateUtility(board, marker), board];
         }
  
@@ -129,6 +127,21 @@ const gameBoard = (() => {
 
     const calculateUtility = (board, currentMarker) => {
         let utility = 0;
+        if (!isBoardFull(board)) {
+            let space = 0;
+            for (let i = 0; i < board.length; i++)
+            {
+                if (board[i] === '') {
+                    space++;
+                }
+            }
+            if (isWon(board, 'O')) {
+                return space * 10;
+            }
+            else {
+                return -1 * space * 10;
+            }
+        }
         if (board[4] == currentMarker) {
             utility += 5;
         }
@@ -140,11 +153,10 @@ const gameBoard = (() => {
             utility += -10;
             return utility;
         }
-        // return utility;
-        //check if two places are occupied by player
 
-        let offensive = -3; // -3
-        let defensive = 3; //3
+        //check if two places are occupied by player
+        let offensive = 3; 
+        let defensive = -3; 
         for (let i = 0; i < 3; i++) {
             if (board[i] == board[i + 3] && board[i] != board[i + 6]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
@@ -187,7 +199,6 @@ const gameBoard = (() => {
         if (board[6] == board[2] && board[6] != board[4]) {
             utility += board[2] == currentMarker ? offensive : defensive;
         }
-        console.log("utility", utility);
         return utility;        
     }
 
@@ -214,7 +225,7 @@ const gameBoard = (() => {
         isWon,
         showWon,
         findOptimalPlace, 
-        minimax
+        minimax,
     };
 })();
 
@@ -250,6 +261,7 @@ const gameFlow = (() => {
     let currentPlayer; 
 
     function selectUserField(event) {
+
         if (currentPlayer.marker == player1.marker && event.composedPath()[0].innerText == '') {
             player1.placeMarker(event.composedPath()[0].id - 1);
 
@@ -265,13 +277,9 @@ const gameFlow = (() => {
             
             let move = gameBoard.minimax(gameBoard.board);
             
-            // let move = gameBoard.maximize(gameBoard.board);
-            // displayController.displayBoard(move);
             gameBoard.board = move[1];
             displayController.displayBoard(move[1]);
             
-            // player2.placeMarker(gameBoard.findOptimalPlace());
-
             if (gameBoard.isBoardFull(gameBoard.board) || 
             gameBoard.isWon(gameBoard.board, currentPlayer.marker)) {
                 gameOver();
@@ -321,6 +329,7 @@ const gameFlow = (() => {
     })
 
     document.querySelector(".refresh").addEventListener('click', () => {
+        // TODO
         window.location.href = "./index.html";
     })
 
