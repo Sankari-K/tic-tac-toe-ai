@@ -67,6 +67,12 @@ input:focus {
     justify-content: space-evenly;
 }
 
+.player-info > span {
+    display: block;
+    margin: 5px;
+    font-size: 45px;
+}
+
 .result {
     font-size: 60px;
 }

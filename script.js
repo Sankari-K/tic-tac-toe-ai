@@ -317,6 +317,11 @@ const gameFlow = (() => {
             currentPlayer = player1;
 
             document.querySelector(".player-name").classList.add("hidden");
+            document.querySelector("#name1").innerText = player1.name;
+
+            document.querySelector("#player1").classList.remove("hidden");
+            document.querySelector("#player2").classList.remove("hidden");
+
             setDescription("Start playing!");
 
             boardElement.forEach((field) => {
