@@ -77,19 +77,6 @@ const gameBoard = (() => {
         }
     }
 
-    // TODO: change or delete
-    const findOptimalPlace = () => {
-        let positions = [];
-        for (let i = 0; i < board.length; i++)
-        {
-            if (board[i] === '') {
-                positions.push(i);
-            }
-        }
-        return positions[Math.floor(Math.random() * positions.length)];;
-
-    }
-
     const minimax = (board, isRobot) => {
         let marker = isRobot ? 'X': 'O';
         if (isBoardFull(board) || isWon(board, 'O') || isWon(board, 'X')) {
@@ -224,7 +211,6 @@ const gameBoard = (() => {
         isBoardFull,
         isWon,
         showWon,
-        findOptimalPlace, 
         minimax,
     };
 })();
