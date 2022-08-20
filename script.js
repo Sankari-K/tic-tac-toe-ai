@@ -86,6 +86,11 @@ const gameBoard = (() => {
         if (isRobot) {
             let bestVal = -Infinity;
             let moves = findChildren(board, 'O');
+
+            // if (isEqual(board, ['','','X','X','O','O','O','O','X'])) {
+            //     console.log("mooves", moves, "isrobot");
+            // }
+
             let bestBoard;
             for (let i = 0; i < moves.length; i++) {
                 let value = minimax(moves[i], false);
@@ -100,6 +105,12 @@ const gameBoard = (() => {
             let bestVal = Infinity;
             let moves = findChildren(board, 'X');
             let bestBoard;
+
+            // if (isEqual(board, ['','','X','X','O','O','O','O','X'])) {
+            //     console.log("marker is", marker);
+            //     console.log("mooves", moves);
+            // }
+
             for (let i = 0; i < moves.length; i++) {
                 let value = minimax(moves[i], true);
                 bestVal = bestVal <= value[0] ? bestVal : value[0];
@@ -113,6 +124,9 @@ const gameBoard = (() => {
 
 
     const calculateUtility = (board, currentMarker) => {
+        // if (isEqual(board, ['X','O','X','X','O','O','O','O','X'])) {
+        //     console.log("found!!", currentMarker);
+        // }
         let utility = 0;
         if (!isBoardFull(board)) {
             let space = 0;
@@ -142,8 +156,8 @@ const gameBoard = (() => {
         }
 
         //check if two places are occupied by player
-        let offensive = 3; 
-        let defensive = -3; 
+        let offensive = -3;  // 3
+        let defensive = 3; // -3
         for (let i = 0; i < 3; i++) {
             if (board[i] == board[i + 3] && board[i] != board[i + 6]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
@@ -212,6 +226,7 @@ const gameBoard = (() => {
         isWon,
         showWon,
         minimax,
+        calculateUtility
     };
 })();
 
@@ -247,6 +262,12 @@ const gameFlow = (() => {
     let currentPlayer; 
 
     async function selectUserField(event) {
+        // console.log("umm so", gameBoard.calculateUtility(['X','','X','X','O','O','O','O',"X"], 'O'));  -
+        // console.log("whyy", gameBoard.calculateUtility(['','X','X','X','O','O','O','O',"X"], 'O'));
+
+        //console.log("umm so", gameBoard.calculateUtility(['X','O','X','X','O','O','O','O',"X"], 'O')); // 15
+        //console.log("whyy", gameBoard.calculateUtility(['O','X','X','X','O','O','O','O',"X"], 'O')); // 17
+
         if (currentPlayer.marker == player1.marker && event.composedPath()[0].innerText == '') {
             player1.placeMarker(event.composedPath()[0].id - 1);
 
@@ -341,5 +362,14 @@ const gameFlow = (() => {
         resultField.innerText = text;
     }
 })
+
+function isEqual(arr1, arr2) {
+    for (i = 0; i < arr1.length - 1; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 gameFlow();
