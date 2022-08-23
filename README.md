@@ -1,1 +1,4 @@
 # tic-tac-toe-ai
+A browser version of the tic tac toe game, against the computer. 
+
+I used the minimax algorithm to decide where the computer's marker would be placed. The one thing I struggled with was the utility function, which would decide the "score"  or how favourable a given board is, given the player's marker. At first, I took only wins, losses and 2 markers in a straight line into consideration. Then, I realized that I also needed to take the number of turns to win/lose the game into consideration (that is by measuring the number of blank spaces on the board when a player wins/ loses). The faster the computer wins, the better. Once that was done, it was pretty easy to make it an unbeatable AI. 
