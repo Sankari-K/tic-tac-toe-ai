@@ -1,6 +1,6 @@
 const boardElement = document.querySelectorAll('.field');
 
-// for each player
+// placing the marker on the board for a player
 const Player = (name, marker) => {
     const placeMarker = position => {
         gameBoard.placeMarker(position, marker);
@@ -16,7 +16,7 @@ const gameBoard = (() => {
             '', '', '',
             '', '', '',
             ]
-
+    // place a marker for a player at a particular position 
     const placeMarker = (position, marker) => {
         if (gameBoard.board[position] === '') {
             gameBoard.board[position] = marker;
@@ -24,6 +24,7 @@ const gameBoard = (() => {
         displayController.displayBoard(gameBoard.board);
     }
 
+    // check if the board is already full
     const isBoardFull = (board) => {
         for (let i = 0; i < board.length; i++)
         {
@@ -34,19 +35,23 @@ const gameBoard = (() => {
         return true;
     }
 
+    // check if a player has already won the game
     const isWon = (board, marker) => {
+        // vertical lines
         for (let i = 0; i < 3; i++) {
             if (board[i] == marker && board[i + 3] == marker && 
                 board[i + 6] == marker) {
                     return true;
                 }
         }
+        // horizontal lines
         for (let i = 0; i < 7; i = i + 3) {
             if (board[i] == marker && board[i + 1] == marker && 
                 board[i + 2] == marker) {
                     return true;
                 }
         }
+        // diagonals
         if (board[0] == marker && board[4] == marker && board[8] == marker) {
             return true;
         }
@@ -56,6 +61,7 @@ const gameBoard = (() => {
         return false;
     }
 
+    // similar to isWon, except the result is displayed on the game board 
     const showWon = (marker) => {
         for (let i = 0; i < 3; i++) {
             if (gameBoard.board[i] == marker && gameBoard.board[i + 3] == marker && 
@@ -77,17 +83,22 @@ const gameBoard = (() => {
         }
     }
 
+    /* this function recursively simulates the game
+    by creating a game tree */
+
     const minimax = (board, isRobot) => {
         let marker = isRobot ? 'X': 'O';
+        // if it's at an end state
         if (isBoardFull(board) || isWon(board, 'O') || isWon(board, 'X')) {
             return [calculateUtility(board, marker), board];
         }
  
+        // at the robot's turn, maximize utility score
         if (isRobot) {
             let bestVal = -Infinity;
             let moves = findChildren(board, 'O');
-
             let bestBoard;
+
             for (let i = 0; i < moves.length; i++) {
                 let value = minimax(moves[i], false);
                 bestVal = bestVal >= value[0] ? bestVal : value[0];
@@ -97,6 +108,7 @@ const gameBoard = (() => {
             }
             return [bestVal, bestBoard];
         }
+        // at the human's turn. minimize utility score
         else {
             let bestVal = Infinity;
             let moves = findChildren(board, 'X');
@@ -113,9 +125,17 @@ const gameBoard = (() => {
         }
     }
 
+    /* this function calculates the score of a board
+    the higher the score, the higher the chance of the robot winning */
 
     const calculateUtility = (board, currentMarker) => {
         let utility = 0;
+
+        /* if the board isn't full, calculate number
+        of blank spaces. winning with many blank spaces
+        is better than winning with less blank spaces
+        winning *sooner* should be given a higher score */
+
         if (!isBoardFull(board)) {
             let space = 0;
             for (let i = 0; i < board.length; i++)
@@ -124,16 +144,24 @@ const gameBoard = (() => {
                     space++;
                 }
             }
+            // very high score for winning early
             if (isWon(board, 'O')) {
                 return space * 10;
             }
+            // very low score for losing early
             else {
                 return -1 * space * 10;
             }
         }
+
+        /* computer using the middle tile 
+        is always favourable - extra points for that */  
+
         if (board[4] == currentMarker) {
             utility += 5;
         }
+
+        // points depending on whether the game was won or lost
         if (isWon(board, currentMarker)) {
             utility += 10;
             return utility;
@@ -142,10 +170,12 @@ const gameBoard = (() => {
             utility += -10;
             return utility;
         }
+        
+        //check if two places are occupied by player (horizontal, vertical, diagonal)
+        let offensive = -3;  
+        let defensive = 3; 
 
-        //check if two places are occupied by player
-        let offensive = -3;  // 3
-        let defensive = 3; // -3
+        // 2/3 of a column is occupied by the same player
         for (let i = 0; i < 3; i++) {
             if (board[i] == board[i + 3] && board[i] != board[i + 6]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
@@ -157,6 +187,7 @@ const gameBoard = (() => {
                 utility += board[i] == currentMarker ? offensive : defensive;
             }
         }
+        // 2/3 of a row is occupied by the same player
         for (let i = 0; i < 7; i = i + 3) {
             if (board[i] == board[i + 1] && board[i] != board[i + 2]) {
                 utility += board[i] == currentMarker ? offensive : defensive;
@@ -169,6 +200,7 @@ const gameBoard = (() => {
             }
         }
 
+        // 2/3 of a diagonal is occupied by the same player
         if (board[0] == board[4] && board[0] != board[8]) {
             utility += board[0] == currentMarker ? offensive : defensive;
         }
@@ -191,6 +223,9 @@ const gameBoard = (() => {
         return utility;        
     }
 
+    /* this function finds all possible next states
+    by generating boards by replacing each blank tile
+    by the marker */
     const findChildren = (board, marker) => {
         let children = [];
         let blankIndices = [];
@@ -217,6 +252,7 @@ const gameBoard = (() => {
     };
 })();
 
+// display functions related to the game board
 const displayController = (() => {
     const displayBoard = (gameBoard) => {
         let index = 0;
@@ -257,12 +293,14 @@ const gameFlow = (() => {
                 gameOver();
                 return;
             }
+            // robot's turn
             setDescription("Robot is making a decision...");
             currentPlayer = player2;
             
             const sleep = ms => new Promise(r => setTimeout(r, ms));
             await sleep(2000);
 
+            // finding best possible move
             let move = gameBoard.minimax(gameBoard.board);
             
             gameBoard.board = move[1];
@@ -273,7 +311,7 @@ const gameFlow = (() => {
                 gameOver();
                 return;
             }
-            
+            // user's turn
             currentPlayer = player1;
             setDescription(`${player1.name}'s turn!`);
             
@@ -298,12 +336,15 @@ const gameFlow = (() => {
         })
     }
 
+    // once a valid name has been entered, hide the text field and start the game
     document.querySelector("#play-button").addEventListener('click', (e) => {
         e.preventDefault();
         if (document.querySelector("#name").value !== '') {
+            // creating a Player for the user
             player1 = Player(document.querySelector("#name").value, 'O');
             currentPlayer = player1;
 
+            // hide text fields and show side panels
             document.querySelector(".player-name").classList.add("hidden");
             document.querySelector("#name1").innerText = player1.name;
 
@@ -321,6 +362,7 @@ const gameFlow = (() => {
         }
     })
 
+    // for a new game (when the refresh button is clicked)
     document.querySelector(".refresh").addEventListener('click', () => {
         gameBoard.board = [
                      '', '', '',
@@ -338,6 +380,7 @@ const gameFlow = (() => {
             })
     })
 
+    // this displays text regarding the game below the gameboard
     function setDescription(text) {
         let resultField = document.querySelector(".result");
         resultField.innerText = text;
